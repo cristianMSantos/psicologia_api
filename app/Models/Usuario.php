@@ -8,9 +8,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class Usuario extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
+
+    protected $table = 'usuario';
+
+    protected $primaryKey = 'co_usuario';
+
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +24,13 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'de_nome',
+        'de_nome_usuario',
+        'de_cpf',
+        'de_senha',
+        'de_email',
+        'co_perfil',
+        'ic_ativo'
     ];
 
     /**
@@ -29,8 +39,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'de_senha',
     ];
 
     /**
@@ -59,5 +68,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->de_senha;
     }
 }
