@@ -30,7 +30,8 @@ class Usuario extends Authenticatable implements JWTSubject
         'de_senha',
         'de_email',
         'co_perfil',
-        'ic_ativo'
+        'ic_ativo',
+        'refresh_token'
     ];
 
     /**
@@ -40,6 +41,7 @@ class Usuario extends Authenticatable implements JWTSubject
      */
     protected $hidden = [
         'de_senha',
+        'refresh_token'
     ];
 
     /**

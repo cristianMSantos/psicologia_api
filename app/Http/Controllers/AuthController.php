@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Usuario;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -75,9 +76,32 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh()
+    public function refresh(Request $request)
     {
-        return $this->respondWithToken(auth()->refresh());
+        $refreshToken = $request->input('refreshToken');
+
+        // Encontre o usuário usando o refresh token
+        $user = Usuario::where('refresh_token', $refreshToken)->first();
+
+        // Verifica se o usuário foi encontrado
+        if (!$user) {
+            return response()->json(['error' => 'Invalid refresh token'], 401);
+        }
+
+        // Autenticar o usuário manualmente
+        auth()->login($user);
+
+        // Gera um novo token JWT
+        $newToken = auth()->refresh();
+
+        // Atualiza o refresh token (opcional)
+        $newRefreshToken = Str::random(60);
+        $user->update(['refresh_token' => $newRefreshToken]);
+
+        return response()->json([
+            'token' => $newToken,
+            'refresh_token' => $newRefreshToken
+        ]);
     }
 
     /**
@@ -91,8 +115,22 @@ class AuthController extends Controller
     {
         return response()->json([
             'access_token' => $token,
+            'refresh_token' => $this->generateRefreshToken(),
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    protected function generateRefreshToken()
+    {
+        // Lógica para gerar um refresh token
+        // Isso geralmente envolve a criação de um token e o armazenamento associado ao usuário
+        $refreshToken = Str::random(60); // Gera um token aleatório para o exemplo
+
+        // Armazene o refresh token no banco de dados associado ao usuário
+        // Exemplo (supondo que você tenha um campo para refresh_token na tabela de usuários):
+        auth()->user()->update(['refresh_token' => $refreshToken]);
+
+        return $refreshToken;
     }
 }
